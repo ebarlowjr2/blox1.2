@@ -108,45 +108,46 @@ const StatusPill = ({ status }) => (
 
 const AgentCard = ({ name, subtitle, color, status, tools }) => {
   return (
-    <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
-              {name.split(".")[0]}
+    <div className="opacity-100">
+      <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
+                {name.split(".")[0]}
+              </div>
+              <div>
+                <CardTitle className="text-base leading-tight">{name}</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-base leading-tight">{name}</CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-            </div>
+            <StatusPill status={status} />
           </div>
-          <StatusPill status={status} />
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0 space-y-3">
-        <div className="flex flex-wrap gap-2">
-          {tools.slice(0, 5).map((t) => (
-            <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          {status === "online" ? (
-            <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
-          ) : (
-            <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
-          )}
-          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
-          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {tools.slice(0, 5).map((t) => (
+              <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            {status === "online" ? (
+              <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
+            ) : (
+              <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
+            )}
+            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
+            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
 export default function BloxHome() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Top Bar */}
       <header className="sticky top-0 z-40 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-slate-200/60">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -166,7 +167,6 @@ export default function BloxHome() {
         </div>
       </header>
 
-      {/* Hero / KPIs */}
       <section className="mx-auto max-w-7xl px-4 pt-8 pb-6">
         <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 text-white shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -187,9 +187,7 @@ export default function BloxHome() {
         </div>
       </section>
 
-      {/* Main Grid */}
       <main className="mx-auto max-w-7xl px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Agents */}
         <section className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold tracking-wide text-slate-700">Agents</h3>
@@ -202,9 +200,7 @@ export default function BloxHome() {
           </div>
         </section>
 
-        {/* Right Rail */}
         <aside className="space-y-4">
-          {/* System Health */}
           <Card className="rounded-2xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">System Health</CardTitle>
@@ -230,7 +226,6 @@ export default function BloxHome() {
             </CardContent>
           </Card>
 
-          {/* Activity */}
           <Card className="rounded-2xl">
             <CardHeader className="pb-2 flex-row items-center justify-between">
               <CardTitle className="text-sm">Recent Activity</CardTitle>
@@ -250,7 +245,6 @@ export default function BloxHome() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
           <Card className="rounded-2xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Quick Actions</CardTitle>
@@ -265,7 +259,6 @@ export default function BloxHome() {
         </aside>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-slate-200/70">
         <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-muted-foreground flex items-center justify-between">
           <span>© {new Date().getFullYear()} BLOX • AI CEO Control</span>
