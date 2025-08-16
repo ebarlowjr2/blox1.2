@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,44 +109,38 @@ const StatusPill = ({ status }) => (
 
 const AgentCard = ({ name, subtitle, color, status, tools }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22 }}
-    >
-      <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
-                {name.split(".")[0]}
-              </div>
-              <div>
-                <CardTitle className="text-base leading-tight">{name}</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-              </div>
+    <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
+              {name.split(".")[0]}
             </div>
-            <StatusPill status={status} />
+            <div>
+              <CardTitle className="text-base leading-tight">{name}</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent className="pt-0 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {tools.slice(0, 5).map((t) => (
-              <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            {status === "online" ? (
-              <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
-            ) : (
-              <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
-            )}
-            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
-            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          <StatusPill status={status} />
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0 space-y-3">
+        <div className="flex flex-wrap gap-2">
+          {tools.slice(0, 5).map((t) => (
+            <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          {status === "online" ? (
+            <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
+          ) : (
+            <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
+          )}
+          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
+          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -175,12 +168,7 @@ export default function BloxHome() {
       </header>
 
       {/* Hero / KPIs */}
-      <motion.section 
-        className="mx-auto max-w-7xl px-4 pt-8 pb-6"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22 }}
-      >
+      <section className="mx-auto max-w-7xl px-4 pt-8 pb-6">
         <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 text-white shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -198,7 +186,7 @@ export default function BloxHome() {
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Main Grid */}
       <main className="mx-auto max-w-7xl px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
