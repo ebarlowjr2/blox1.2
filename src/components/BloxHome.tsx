@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,7 +110,11 @@ const StatusPill = ({ status }) => (
 
 const AgentCard = ({ name, subtitle, color, status, tools }) => {
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22 }}
+    >
       <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
@@ -142,7 +147,7 @@ const AgentCard = ({ name, subtitle, color, status, tools }) => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
@@ -170,7 +175,12 @@ export default function BloxHome() {
       </header>
 
       {/* Hero / KPIs */}
-      <section className="mx-auto max-w-7xl px-4 pt-8 pb-6">
+      <motion.section 
+        className="mx-auto max-w-7xl px-4 pt-8 pb-6"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22 }}
+      >
         <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 text-white shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -188,7 +198,7 @@ export default function BloxHome() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Main Grid */}
       <main className="mx-auto max-w-7xl px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
