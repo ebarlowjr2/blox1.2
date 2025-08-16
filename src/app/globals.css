@@ -6,6 +6,9 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  
+  /* shadcn/ui CSS variables */
+  --muted-foreground: 107 114 126; /* text-gray-500 equivalent */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,6 +16,7 @@
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+    --muted-foreground: 156 163 175; /* text-gray-400 equivalent */
   }
 }
 
@@ -27,5 +31,5 @@ body {
 }
 
 .text-muted-foreground {
-  color: rgb(107 114 126);
+  color: rgb(var(--muted-foreground));
 }
