@@ -1,9 +1,18 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+
+// ------------------------------------------------------------
+// BLOX – AI CEO Home Page
+// Single-file React component using Tailwind + shadcn/ui + Lucide
+// Drop into your app (e.g., /app/page.tsx) and wire real data later.
+// ------------------------------------------------------------
 
 // Mock data placeholders — swap with live stats from your backend
 const kpis = [
@@ -94,53 +103,61 @@ const healthSignals = [
   { label: "Throughput", value: "3.2k/min", icon: Zap },
 ];
 
-const QuickAction = ({ icon: Icon, label }) => (
+const QuickAction = ({ icon: Icon, label }: { icon: any; label: string }) => (
   <Button variant="secondary" className="gap-2 rounded-xl">
     <Icon className="size-4" /> {label}
   </Button>
 );
 
-const StatusPill = ({ status }) => (
+const StatusPill = ({ status }: { status: "online" | "offline" }) => (
   <div className="flex items-center gap-2">
     <span className={`inline-block size-2 rounded-full ${status === "online" ? "bg-emerald-500" : "bg-slate-400"}`} />
     <span className="text-xs text-muted-foreground capitalize">{status}</span>
   </div>
 );
 
-const AgentCard = ({ name, subtitle, color, status, tools }) => {
+const AgentCard: React.FC<{
+  name: string;
+  subtitle: string;
+  color: string;
+  status: "online" | "offline";
+  tools: string[];
+}> = ({ name, subtitle, color, status, tools }) => {
   return (
-    <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
-              {name.split(".")[0]}
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
+      <Card className="h-full border-slate-200/60 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`size-9 ${color} text-white rounded-full grid place-content-center font-semibold`}>
+                {name.split(".")[0]}
+              </div>
+              <div>
+                <CardTitle className="text-base leading-tight">{name}</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-base leading-tight">{name}</CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-            </div>
+            <StatusPill status={status} />
           </div>
-          <StatusPill status={status} />
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0 space-y-3">
-        <div className="flex flex-wrap gap-2">
-          {tools.slice(0, 5).map((t) => (
-            <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          {status === "online" ? (
-            <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
-          ) : (
-            <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
-          )}
-          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
-          <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {tools.slice(0, 5).map((t) => (
+              <Badge key={t} variant="secondary" className="rounded-lg">{t}</Badge>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            {status === "online" ? (
+              <Button size="sm" className="rounded-xl gap-2"><Play className="size-4" /> Start Task</Button>
+            ) : (
+              <Button size="sm" variant="outline" className="rounded-xl gap-2"><Play className="size-4" /> Wake Agent</Button>
+            )}
+            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Pause className="size-4" /> Pause</Button>
+            <Button size="sm" variant="ghost" className="rounded-xl gap-2"><Settings2 className="size-4" /> Settings</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -169,12 +186,12 @@ export default function BloxHome() {
 
       {/* Hero / KPIs */}
       <section className="mx-auto max-w-7xl px-4 pt-8 pb-6">
-        <div className="rounded-3xl p-6 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 text-white shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl p-6 bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 text-white shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <p className="text-sm/6 opacity-90">Control Center</p>
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">BLOX Agent Command Center</h2>
-              <p className="mt-2 text-white/90 max-w-prose">Orchestrate your organization's agents, tools, and workflows. Launch initiatives, track progress, and let BLOX automate the busywork.</p>
+              <p className="mt-2 text-white/90 max-w-prose">Orchestrate your organization’s agents, tools, and workflows. Launch initiatives, track progress, and let BLOX automate the busywork.</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto">
               {kpis.map((k) => (
@@ -185,7 +202,7 @@ export default function BloxHome() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Main Grid */}
@@ -198,7 +215,7 @@ export default function BloxHome() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {agents.map((a) => (
-              <AgentCard key={a.key} name={a.name} subtitle={a.subtitle} color={a.color} status={a.status} tools={a.tools} />
+              <AgentCard key={a.key} name={a.name} subtitle={a.subtitle} color={a.color} status={a.status as any} tools={a.tools} />
             ))}
           </div>
         </section>
