@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,11 +104,15 @@ const healthSignals = [
   { label: "Throughput", value: "3.2k/min", icon: Zap },
 ];
 
-const QuickAction = ({ icon: Icon, label }: { icon: any; label: string }) => (
-  <Button variant="secondary" className="gap-2 rounded-xl">
-    <Icon className="size-4" /> {label}
-  </Button>
-);
+const QuickAction = ({ icon: Icon, label, href }: { icon: any; label: string; href?: string }) => {
+  const buttonContent = (
+    <Button variant="secondary" className="gap-2 rounded-xl">
+      <Icon className="size-4" /> {label}
+    </Button>
+  );
+  
+  return href ? <Link href={href}>{buttonContent}</Link> : buttonContent;
+};
 
 const StatusPill = ({ status }: { status: "online" | "offline" }) => (
   <div className="flex items-center gap-2">
@@ -177,7 +182,7 @@ export default function BloxHome() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <QuickAction icon={Search} label="Ask BLOX" />
+            <QuickAction icon={Search} label="Ask BLOX" href="/dashboard/chat" />
             <QuickAction icon={UploadCloud} label="Upload Brief" />
             <Button className="gap-2 rounded-xl"><Sparkles className="size-4" /> New Initiative</Button>
           </div>
