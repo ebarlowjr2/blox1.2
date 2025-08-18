@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 
 const navItems = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -34,14 +33,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {item.name}
             </Link>
           ))}
-          <button
-            onClick={async () => {
-              await signOut({ callbackUrl: '/login' });
-            }}
-            className="block w-full text-left px-3 py-2 rounded hover:bg-red-700 mt-6 bg-red-600"
-          >
-            Logout
-          </button>
         </nav>
       </aside>
 
