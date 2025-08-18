@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import AgentCard from './AgentCard';
+import { useRealTimeData } from '@/hooks/useRealTimeData';
 
 interface Tool {
   name: string;
@@ -20,8 +20,70 @@ interface Agent {
   color: string;
 }
 
+const AgentCard: React.FC<{ agent: Agent; onToggleAgent: (id: string) => void }> = ({ agent, onToggleAgent }) => (
+  <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center">
+        <div className={`w-12 h-12 ${agent.color} rounded-lg flex items-center justify-center text-white font-bold mr-3`}>
+          {agent.acronym.charAt(0)}
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900">{agent.acronym}</h3>
+          <p className="text-sm text-gray-600">{agent.name}</p>
+        </div>
+      </div>
+      <div className="flex items-center">
+        <div className={`w-3 h-3 rounded-full mr-2 ${agent.online ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+        <span className={`text-sm ${agent.online ? 'text-green-600' : 'text-gray-500'}`}>
+          {agent.online ? 'Online' : 'Offline'}
+        </span>
+      </div>
+    </div>
+    <p className="text-sm text-gray-600 mb-4">{agent.description}</p>
+    <div className="flex flex-wrap gap-2 mb-4">
+      {agent.tools.slice(0, 3).map((tool, index) => (
+        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+          <span className="mr-1">{tool.icon}</span>
+          {tool.name}
+        </span>
+      ))}
+      {agent.tools.length > 3 && (
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+          +{agent.tools.length - 3} more
+        </span>
+      )}
+    </div>
+    <button
+      onClick={() => onToggleAgent(agent.id)}
+      className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+        agent.online
+          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+          : 'bg-green-100 text-green-700 hover:bg-green-200'
+      }`}
+    >
+      {agent.online ? 'Pause Agent' : 'Start Agent'}
+    </button>
+  </div>
+);
+
 const AgentDashboard: React.FC = () => {
-  const [agents, setAgents] = useState<Agent[]>([
+  const { data: agentsData, loading: agentsLoading } = useRealTimeData<{
+    agents: Array<{
+      key: string;
+      name: string;
+      subtitle: string;
+      color: string;
+      status: 'online' | 'offline';
+      tools: string[];
+      lastActivity: string;
+      tasksCompleted: number;
+    }>;
+  }>({
+    endpoint: '/api/dashboard/agents',
+    interval: 15000,
+  });
+
+  const fallbackAgents = [
     {
       id: 'mark',
       name: 'Marketing, Automation, Research & Knowledge',
@@ -134,21 +196,27 @@ const AgentDashboard: React.FC = () => {
         { name: 'Analytics', icon: '📊', connected: true }
       ]
     }
-  ]);
+  ];
+
+  const agents = agentsData?.agents ? agentsData.agents.map(agent => ({
+    id: agent.key.toLowerCase(),
+    name: agent.subtitle,
+    acronym: agent.name,
+    description: agent.subtitle,
+    online: agent.status === 'online',
+    color: agent.color,
+    tools: agent.tools.map(tool => ({ name: tool, icon: '🔧', connected: true }))
+  })) : fallbackAgents;
 
   const handleToggleAgent = (id: string) => {
-    setAgents(prevAgents =>
-      prevAgents.map(agent =>
-        agent.id === id ? { ...agent, online: !agent.online } : agent
-      )
-    );
+    console.log('Toggle agent:', id);
   };
 
   const stats = [
     { label: 'Active Agents', value: agents.filter(a => a.online).length.toString(), icon: '🤖', color: 'bg-green-500' },
-    { label: 'Messages Today', value: '24', icon: '💬', color: 'bg-blue-500' },
-    { label: 'Tasks Completed', value: '12', icon: '✅', color: 'bg-purple-500' },
-    { label: 'System Health', value: '98%', icon: '❤️', color: 'bg-red-500' },
+    { label: 'Messages Today', value: agentsLoading ? '...' : '24', icon: '💬', color: 'bg-blue-500' },
+    { label: 'Tasks Completed', value: agentsLoading ? '...' : '12', icon: '✅', color: 'bg-purple-500' },
+    { label: 'System Health', value: agentsLoading ? '...' : '98%', icon: '❤️', color: 'bg-red-500' },
   ];
 
   const recentActivity = [

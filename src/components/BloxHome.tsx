@@ -3,27 +3,25 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare } from "lucide-react";
+import { Brain, LineChart, Settings2, Zap, ShieldCheck, Users2, Calendar, Mail, Play, Pause, UploadCloud, Search, CheckCircle2, AlertTriangle, Wifi, Wrench, Plus, Sparkles, Github, Cloud, Database, MessageSquare, DollarSign, Image, Users, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useRealTimeData } from "@/hooks/useRealTimeData";
 
 // ------------------------------------------------------------
 // BLOX – AI CEO Home Page
-// Single-file React component using Tailwind + shadcn/ui + Lucide
-// Drop into your app (e.g., /app/page.tsx) and wire real data later.
 // ------------------------------------------------------------
 
-// Mock data placeholders — swap with live stats from your backend
-const kpis = [
+const fallbackKpis = [
   { label: "Agents Online", value: 5, suffix: "/8" },
   { label: "Tools Connected", value: 29 },
   { label: "System Health", value: 98, suffix: "%" },
   { label: "Tasks in Queue", value: 14 },
 ];
 
-const agents = [
+const fallbackAgents = [
   {
     key: "MARK",
     name: "M.A.R.K.",
@@ -90,14 +88,14 @@ const agents = [
   },
 ];
 
-const recentActivity = [
-  { id: 1, icon: <Mail className="size-4" />, title: "MARK sent 42 outreach emails", time: "2m ago" },
-  { id: 2, icon: <ShieldCheck className="size-4" />, title: "CYRA closed phishing incident #4821", time: "14m ago" },
-  { id: 3, icon: <Calendar className="size-4" />, title: "ALEX scheduled Ops sync for Tue 10:00", time: "25m ago" },
-  { id: 4, icon: <Github className="size-4" />, title: "TONY merged PR #223 (API ratelimiting)", time: "1h ago" },
+const fallbackActivity = [
+  { id: 1, icon: "Mail", title: "MARK sent 42 outreach emails", time: "2m ago" },
+  { id: 2, icon: "ShieldCheck", title: "CYRA closed phishing incident #4821", time: "14m ago" },
+  { id: 3, icon: "Calendar", title: "ALEX scheduled Ops sync for Tue 10:00", time: "25m ago" },
+  { id: 4, icon: "Github", title: "TONY merged PR #223 (API ratelimiting)", time: "1h ago" },
 ];
 
-const healthSignals = [
+const fallbackHealthSignals = [
   { label: "Incidents", value: 1, icon: AlertTriangle },
   { label: "Latency", value: "112ms", icon: Wifi },
   { label: "Integrations", value: 29, icon: Wrench },
@@ -167,6 +165,77 @@ const AgentCard: React.FC<{
 };
 
 export default function BloxHome() {
+  const { data: statusData, loading: statusLoading } = useRealTimeData<{
+    kpis: { agentsOnline: number; toolsConnected: number; systemHealth: number; tasksInQueue: number };
+    healthSignals: { incidents: number; latency: string; integrations: number; throughput: string };
+    systemStatus: { uptime: string; apiServer: string; database: string; smsService: string; aiEngine: string };
+  }>({
+    endpoint: '/api/dashboard/status',
+    interval: 30000,
+  });
+
+  const { data: agentsData, loading: agentsLoading } = useRealTimeData<{
+    agents: Array<{
+      key: string;
+      name: string;
+      subtitle: string;
+      color: string;
+      status: 'online' | 'offline';
+      tools: string[];
+      lastActivity: string;
+      tasksCompleted: number;
+    }>;
+  }>({
+    endpoint: '/api/dashboard/agents',
+    interval: 15000,
+  });
+
+  const { data: activityData, loading: activityLoading } = useRealTimeData<{
+    recentActivity: Array<{
+      id: number;
+      title: string;
+      time: string;
+      icon: string;
+      status: string;
+      agent: string;
+    }>;
+  }>({
+    endpoint: '/api/dashboard/activity',
+    interval: 10000,
+  });
+
+  const kpis = statusData?.kpis ? [
+    { label: "Agents Online", value: statusData.kpis.agentsOnline, suffix: "/8" },
+    { label: "Tools Connected", value: statusData.kpis.toolsConnected },
+    { label: "System Health", value: statusData.kpis.systemHealth, suffix: "%" },
+    { label: "Tasks in Queue", value: statusData.kpis.tasksInQueue },
+  ] : fallbackKpis;
+
+  const agents = agentsData?.agents || fallbackAgents;
+
+  const healthSignals = statusData?.healthSignals ? [
+    { label: "Incidents", value: statusData.healthSignals.incidents, icon: AlertTriangle },
+    { label: "Latency", value: statusData.healthSignals.latency, icon: Wifi },
+    { label: "Integrations", value: statusData.healthSignals.integrations, icon: Wrench },
+    { label: "Throughput", value: statusData.healthSignals.throughput, icon: Zap },
+  ] : fallbackHealthSignals;
+
+  const recentActivity = activityData?.recentActivity || fallbackActivity;
+
+  const getActivityIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Mail': return <Mail className="size-4" />;
+      case 'ShieldCheck': return <ShieldCheck className="size-4" />;
+      case 'Calendar': return <Calendar className="size-4" />;
+      case 'Github': return <Github className="size-4" />;
+      case 'DollarSign': return <DollarSign className="size-4" />;
+      case 'Image': return <Image className="size-4" />;
+      case 'Users': return <Users className="size-4" />;
+      case 'Share': return <Share className="size-4" />;
+      default: return <Mail className="size-4" />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Top Bar */}
@@ -235,9 +304,9 @@ export default function BloxHome() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Uptime</span><span>99.95%</span>
+                  <span>Uptime</span><span>{statusData?.systemStatus?.uptime || '99.95'}%</span>
                 </div>
-                <Progress value={98} className="h-2" />
+                <Progress value={statusData?.kpis?.systemHealth || 98} className="h-2" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {healthSignals.map((s) => (
@@ -257,19 +326,31 @@ export default function BloxHome() {
           <Card className="rounded-2xl">
             <CardHeader className="pb-2 flex-row items-center justify-between">
               <CardTitle className="text-sm">Recent Activity</CardTitle>
-              <Badge variant="secondary" className="rounded-lg">Live</Badge>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${activityLoading ? 'bg-yellow-500' : 'bg-green-500'} animate-pulse`} />
+                <Badge variant="secondary" className="rounded-lg">
+                  {activityLoading ? 'Updating...' : 'Live'}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {recentActivity.map((a) => (
-                <div key={a.id} className="flex items-start gap-3">
-                  <div className="mt-0.5 text-slate-600">{a.icon}</div>
-                  <div className="flex-1">
-                    <div className="text-sm leading-tight">{a.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{a.time}</div>
+              {recentActivity.length > 0 ? recentActivity.map((a) => {
+                const IconComponent = getActivityIcon(a.icon);
+                return (
+                  <div key={a.id} className="flex items-start gap-3">
+                    <div className="mt-0.5 text-slate-600">
+                      <IconComponent className="size-4" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm leading-tight">{a.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{a.time}</div>
+                    </div>
+                    <CheckCircle2 className="size-4 text-emerald-500" />
                   </div>
-                  <CheckCircle2 className="size-4 text-emerald-500" />
-                </div>
-              ))}
+                );
+              }) : (
+                <div className="text-sm text-muted-foreground">No recent activity</div>
+              )}
             </CardContent>
           </Card>
 
