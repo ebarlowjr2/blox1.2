@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : null;
 
 const BLOX_CEO_PROMPT = `You are B.L.O.X (Barlow Logic Operations Xecutive), the AI CEO of a technology company. Your role is to:
 
@@ -27,20 +29,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Store user message in Supabase
-    const { error: insertError } = await supabase
-      .from('blox memory')
-      .insert([
-        {
-          user_id: userId,
-          message: message,
-          sender: 'user',
-          timestamp: new Date().toISOString(),
-        },
-      ]);
+    // Store user message in Supabase (if configured)
+    if (supabase) {
+      const { error: insertError } = await supabase
+        .from('blox memory')
+        .insert([
+          {
+            user_id: userId,
+            message: message,
+            sender: 'user',
+            timestamp: new Date().toISOString(),
+          },
+        ]);
 
-    if (insertError) {
-      console.error('Error storing user message:', insertError);
+      if (insertError) {
+        console.error('Error storing user message:', insertError);
+      }
     }
 
     // Call OpenAI API
@@ -68,20 +72,22 @@ export async function POST(req: NextRequest) {
     const openaiData = await openaiResponse.json();
     const reply = openaiData.choices[0]?.message?.content || 'I apologize, but I encountered an issue processing your request.';
 
-    // Store BLOX response in Supabase
-    const { error: replyInsertError } = await supabase
-      .from('blox memory')
-      .insert([
-        {
-          user_id: userId,
-          message: reply,
-          sender: 'blox',
-          timestamp: new Date().toISOString(),
-        },
-      ]);
+    // Store BLOX response in Supabase (if configured)
+    if (supabase) {
+      const { error: replyInsertError } = await supabase
+        .from('blox memory')
+        .insert([
+          {
+            user_id: userId,
+            message: reply,
+            sender: 'blox',
+            timestamp: new Date().toISOString(),
+          },
+        ]);
 
-    if (replyInsertError) {
-      console.error('Error storing BLOX response:', replyInsertError);
+      if (replyInsertError) {
+        console.error('Error storing BLOX response:', replyInsertError);
+      }
     }
 
     return NextResponse.json({ reply });
@@ -98,6 +104,10 @@ export async function GET(req: NextRequest) {
   const userId = 'anonymous'; // Use default user ID since auth is removed
 
   try {
+    if (!supabase) {
+      return NextResponse.json({ messages: [] });
+    }
+
     const { data: messages, error } = await supabase
       .from('blox memory')
       .select('*')
