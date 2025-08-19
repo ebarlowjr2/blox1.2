@@ -334,21 +334,18 @@ export default function BloxHome() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {recentActivity.length > 0 ? recentActivity.map((a) => {
-                const IconComponent = getActivityIcon(a.icon);
-                return (
-                  <div key={a.id} className="flex items-start gap-3">
-                    <div className="mt-0.5 text-slate-600">
-                      <IconComponent className="size-4" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm leading-tight">{a.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{a.time}</div>
-                    </div>
-                    <CheckCircle2 className="size-4 text-emerald-500" />
+              {recentActivity.length > 0 ? recentActivity.map((a) => (
+                <div key={a.id} className="flex items-start gap-3">
+                  <div className="mt-0.5 text-slate-600">
+                    {getActivityIcon(a.icon)}
                   </div>
-                );
-              }) : (
+                  <div className="flex-1">
+                    <div className="text-sm leading-tight">{a.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{a.time}</div>
+                  </div>
+                  <CheckCircle2 className="size-4 text-emerald-500" />
+                </div>
+              )) : (
                 <div className="text-sm text-muted-foreground">No recent activity</div>
               )}
             </CardContent>
