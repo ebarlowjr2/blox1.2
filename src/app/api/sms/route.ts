@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY 
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : null;
 
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID!,
@@ -24,6 +26,38 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      if (!supabase) {
+        console.log('Supabase not configured - SMS logged but not stored:', { From, Body, To, MessageSid });
+        
+        try {
+          const replyMessage = `Hi! Thanks for contacting BLOX. Your message has been received and will be reviewed by our team. This is an automated response from our AI system.`;
+          
+          await twilioClient.messages.create({
+            body: replyMessage,
+            from: process.env.TWILIO_PHONE_NUMBER!,
+            to: From
+          });
+          
+          console.log('Auto-reply sent successfully to:', From);
+          
+          return NextResponse.json({ 
+            success: true, 
+            message: 'SMS received, logged, and auto-reply sent (no database storage)',
+            received_data: { From, Body, To, MessageSid },
+            reply_sent: true
+          });
+        } catch (replyError) {
+          console.error('Failed to send auto-reply:', replyError);
+          return NextResponse.json({ 
+            success: true, 
+            message: 'SMS received and logged (no database storage, auto-reply failed)',
+            received_data: { From, Body, To, MessageSid },
+            reply_sent: false,
+            reply_error: replyError instanceof Error ? replyError.message : 'Unknown reply error'
+          });
+        }
+      }
+
       const { data, error } = await supabase
         .from('sms_messages')
         .insert({
@@ -148,6 +182,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: true, 
+        messages: [],
+        warning: 'Supabase not configured - no SMS message storage available'
+      });
+    }
+
     const { data, error } = await supabase
       .from('sms_messages')
       .select('*')
