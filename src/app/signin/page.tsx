@@ -1,8 +1,8 @@
 // app/signin/page.tsx
 "use client";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
+// ...
+const supabase = createSupabaseBrowser();
 
 export default function SignInPage() {
   const supabase = createClient();
