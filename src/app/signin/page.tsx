@@ -1,11 +1,11 @@
 // app/signin/page.tsx
 "use client";
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
-// ...
-const supabase = createSupabaseBrowser();
 
-export default function SignInPage() {
-  const supabase = createClient();
+function SignInForm() {
+  const supabase = createSupabaseBrowser();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/app";
   const [email, setEmail] = useState("");
@@ -68,5 +68,13 @@ export default function SignInPage() {
         {msg && <p className="mt-3 text-sm text-slate-600">{msg}</p>}
       </div>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }
