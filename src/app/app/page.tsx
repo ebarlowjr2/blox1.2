@@ -1,5 +1,7 @@
 // app/app/page.tsx
 import { createSupabaseServer } from "@/lib/supabase-server";
+// ...
+const supabase = createSupabaseServer();
 
 export default async function AppHome() {
   const supabase = createSupabaseServer();
