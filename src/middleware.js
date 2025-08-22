@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 export async function middleware(req) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     const url = new URL(req.url);
-    const isProtected = url.pathname.startsWith("/app");
+    const isProtected = url.pathname.startsWith("/app") || url.pathname.startsWith("/dashboard");
     if (isProtected) {
       const signin = new URL("/signin", req.url);
       signin.searchParams.set("redirect", url.pathname + url.search);
@@ -34,7 +34,7 @@ export async function middleware(req) {
   await supabase.auth.getUser();
 
   const url = new URL(req.url);
-  const isProtected = url.pathname.startsWith("/app");
+  const isProtected = url.pathname.startsWith("/app") || url.pathname.startsWith("/dashboard");
   if (isProtected) {
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
