@@ -7,9 +7,10 @@ import { createSupabaseBrowser } from "@/lib/supabase-browser";
 function SignInForm() {
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/app";
+  const error = params.get("error");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(error || null);
 
   const getSupabase = () => {
     try {
@@ -32,7 +33,7 @@ function SignInForm() {
     
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}${redirect}` }
+      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/confirm?next=${redirect}` }
     });
     setLoading(false);
     setMsg(error ? `Error: ${error.message}` : "Magic link sent! Check your email.");
@@ -50,7 +51,7 @@ function SignInForm() {
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}${redirect}` }
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/confirm?next=${redirect}` }
     });
     if (error) { setLoading(false); setMsg(`Error: ${error.message}`); }
   }
