@@ -5,19 +5,34 @@ import { useSearchParams } from 'next/navigation';
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
 function SignInForm() {
-  const supabase = createSupabaseBrowser();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/app";
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  const getSupabase = () => {
+    try {
+      return createSupabaseBrowser();
+    } catch (error) {
+      return null;
+    }
+  };
+
   async function signInWithEmail(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setMsg(null);
+    
+    const supabase = getSupabase();
+    if (!supabase) {
+      setLoading(false);
+      setMsg("Authentication not configured. Please contact administrator.");
+      return;
+    }
+    
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}${redirect}` }
+      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}${redirect}` }
     });
     setLoading(false);
     setMsg(error ? `Error: ${error.message}` : "Magic link sent! Check your email.");
@@ -25,9 +40,17 @@ function SignInForm() {
 
   async function signInWithProvider(provider: "google" | "azure") {
     setLoading(true); setMsg(null);
+    
+    const supabase = getSupabase();
+    if (!supabase) {
+      setLoading(false);
+      setMsg("Authentication not configured. Please contact administrator.");
+      return;
+    }
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}${redirect}` }
+      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}${redirect}` }
     });
     if (error) { setLoading(false); setMsg(`Error: ${error.message}`); }
   }

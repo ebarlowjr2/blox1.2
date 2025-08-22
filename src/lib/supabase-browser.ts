@@ -6,14 +6,7 @@ export function createSupabaseBrowser() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
-    return {
-      auth: {
-        signInWithPassword: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-        signInWithOAuth: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-        signOut: () => Promise.resolve({ error: null }),
-        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-      }
-    } as any;
+    throw new Error('Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
   }
   
   return createBrowserClient(supabaseUrl, supabaseKey);
