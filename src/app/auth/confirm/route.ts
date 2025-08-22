@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { type EmailOtpType } from "@supabase/supabase-js";
+import { type NextRequest } from "next/server";
+import { createSupabaseServer } from "@/lib/supabase-server";
+import { redirect } from "next/navigation";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -11,50 +11,21 @@ export async function GET(request: NextRequest) {
 
   console.log("Auth callback params:", { token_hash, type, next, url: request.url });
 
-  const redirectTo = request.nextUrl.clone();
-  redirectTo.pathname = next;
-  redirectTo.searchParams.delete("token_hash");
-  redirectTo.searchParams.delete("type");
-  redirectTo.searchParams.delete("next");
+  if (token_hash && type) {
+    const supabase = await createSupabaseServer();
+    const { error } = await supabase.auth.verifyOtp({
+      type,
+      token_hash,
+    });
 
-  if (!token_hash || !type) {
-    console.log("Missing parameters, redirecting to signin");
-    redirectTo.pathname = "/signin";
-    redirectTo.searchParams.set("error", "Invalid confirmation link");
-    return NextResponse.redirect(redirectTo);
-  }
+    console.log("VerifyOtp result:", { error });
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name) => cookieStore.get(name)?.value,
-        set: (name, value, options) => {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove: (name, options) => {
-          cookieStore.set({ name, value: "", ...options });
-        },
-      },
+    if (!error) {
+      console.log("Authentication successful, redirecting to:", next);
+      redirect(next);
     }
-  );
-
-  const { error } = await supabase.auth.verifyOtp({
-    type,
-    token_hash,
-  });
-
-  console.log("VerifyOtp result:", { error });
-
-  if (!error) {
-    console.log("Authentication successful, redirecting to:", redirectTo.pathname);
-    return NextResponse.redirect(redirectTo);
   }
 
-  console.log("Authentication failed:", error.message);
-  redirectTo.pathname = "/signin";
-  redirectTo.searchParams.set("error", "Could not authenticate user");
-  return NextResponse.redirect(redirectTo);
+  console.log("Authentication failed or missing parameters, redirecting to signin");
+  redirect("/signin?error=Could not authenticate user");
 }
