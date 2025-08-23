@@ -10,40 +10,59 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/app";
 
-  console.log("Auth callback params:", { token_hash, type, code, next, url: request.url });
+  console.log("Auth callback params:", { 
+    token_hash: token_hash ? "present" : "missing", 
+    type, 
+    code: code ? "present" : "missing", 
+    next, 
+    url: request.url,
+    searchParams: Object.fromEntries(searchParams.entries())
+  });
 
   const supabase = await createSupabaseServer();
 
   if (code) {
     console.log("Processing OAuth callback with code");
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
     
-    console.log("OAuth exchangeCodeForSession result:", { error });
+    try {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      console.log("OAuth exchangeCodeForSession result:", { data, error });
 
-    if (!error) {
-      console.log("OAuth authentication successful, redirecting to:", next);
-      redirect(next);
-    } else {
-      console.log("OAuth authentication failed:", error.message);
-      redirect("/signin?error=OAuth authentication failed");
+      if (!error && data?.session) {
+        console.log("OAuth authentication successful, redirecting to:", next);
+        redirect(next);
+      } else {
+        console.log("OAuth authentication failed:", error?.message || "No session returned");
+        redirect("/signin?error=Could not authenticate user");
+      }
+    } catch (err) {
+      console.log("OAuth callback error:", err);
+      redirect("/signin?error=Authentication callback failed");
     }
   }
 
   if (token_hash && type) {
     console.log("Processing magic link callback");
-    const { error } = await supabase.auth.verifyOtp({
-      type,
-      token_hash,
-    });
+    
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        type,
+        token_hash,
+      });
 
-    console.log("Magic link verifyOtp result:", { error });
+      console.log("Magic link verifyOtp result:", { data, error });
 
-    if (!error) {
-      console.log("Magic link authentication successful, redirecting to:", next);
-      redirect(next);
-    } else {
-      console.log("Magic link authentication failed:", error.message);
-      redirect("/signin?error=Magic link authentication failed");
+      if (!error && data?.session) {
+        console.log("Magic link authentication successful, redirecting to:", next);
+        redirect(next);
+      } else {
+        console.log("Magic link authentication failed:", error?.message || "No session returned");
+        redirect("/signin?error=Magic link authentication failed");
+      }
+    } catch (err) {
+      console.log("Magic link callback error:", err);
+      redirect("/signin?error=Magic link verification failed");
     }
   }
 
