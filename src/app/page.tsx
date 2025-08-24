@@ -10,7 +10,7 @@ const nav = [
 
 const agents = [
   {
-    name: "MARK – Marketing",
+    name: "M.A.R.K. – Marketing, Automation, Research & Knowledge",
     short: "Plans campaigns, drafts copy, schedules posts.",
     bullets: ["CRM sync", "Email + SMS", "Auto A/B tests"],
     icon: (
@@ -20,7 +20,7 @@ const agents = [
     ),
   },
   {
-    name: "Content Creator",
+    name: "C.O.R.Y. – Creative Output & Rendering Yield",
     short: "Blogs, landing pages, product shots, and reels.",
     bullets: ["Brand voice", "SEO briefs", "Image/Video gen"],
     icon: (
@@ -30,7 +30,7 @@ const agents = [
     ),
   },
   {
-    name: "Admin",
+    name: "A.L.E.X. – Administrative Logistics Executive",
     short: "Inbox triage, calendars, travel, and docs.",
     bullets: ["Gmail/GSuite", "Calendar", "Doc drafting"],
     icon: (
@@ -40,7 +40,7 @@ const agents = [
     ),
   },
   {
-    name: "HR",
+    name: "H.A.L.I. – Human Assistance & Labor Intelligence",
     short: "Screening, onboarding, policy Q&A.",
     bullets: ["Job posts", "Resume parse", "Handbooks"],
     icon: (
@@ -50,7 +50,7 @@ const agents = [
     ),
   },
   {
-    name: "Finance",
+    name: "F.I.N.T. – Financial Insights & Transactions",
     short: "Invoices, spend alerts, quick analyses.",
     bullets: ["QBO/Xero", "Forecasts", "AR follow‑ups"],
     icon: (
@@ -60,7 +60,7 @@ const agents = [
     ),
   },
   {
-    name: "Cyber",
+    name: "C.Y.R.A. – Cybersecurity Response & Analysis",
     short: "Policy packs, alerts triage, compliance runs.",
     bullets: ["CMMC/NIST", "SIEM hooks", "Asset checks"],
     icon: (
@@ -70,7 +70,7 @@ const agents = [
     ),
   },
   {
-    name: "Tech",
+    name: "T.O.N.Y. – Technical Operations & Network Yield",
     short: "Web fixes, automations, data cleaning.",
     bullets: ["Git + CI", "APIs", "ETL jobs"],
     icon: (
@@ -80,7 +80,7 @@ const agents = [
     ),
   },
   {
-    name: "Social",
+    name: "S.A.G.E. – Social Automation & Growth Engine",
     short: "Plan, draft, and schedule across channels.",
     bullets: ["Calendar", "Auto‑resize", "Hashtag helper"],
     icon: (
@@ -90,7 +90,7 @@ const agents = [
     ),
   },
   {
-    name: "D.A.S.H. – DevOps",
+    name: "D.A.S.H. – DevOps Automation & Systems Handler",
     short: "Ship features, fix build pipelines, watch uptime.",
     bullets: ["CI/CD", "IaC", "Health checks"],
     icon: (
