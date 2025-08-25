@@ -5,6 +5,9 @@ const nav = [
   { label: "Agents", href: "#agents" },
   { label: "How it works", href: "#how" },
   { label: "Integrations", href: "#integrations" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Security", href: "/security" },
+  { label: "Status", href: "/status" },
   { label: "FAQ", href: "#faq" },
 ];
 
