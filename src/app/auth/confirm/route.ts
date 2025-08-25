@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   if (error_param) {
     console.log("OAuth error received:", { error_param, error_description });
-    redirect(`/signin?error=OAuth error: ${error_param} - ${error_description || "Unknown error"}`);
+    return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent(`OAuth error: ${error_param} - ${error_description || "Unknown error"}`)}`);
   }
 
   const supabase = await createSupabaseServer();
@@ -89,22 +89,22 @@ export async function GET(request: NextRequest) {
         
         if (error?.message?.includes("code_verifier")) {
           console.log("PKCE code verifier issue detected");
-          redirect("/signin?error=OAuth authentication failed: PKCE code verifier missing or invalid. Please try signing in again.");
+          return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent("OAuth authentication failed: PKCE code verifier missing or invalid. Please try signing in again.")}`);
         } else if (error?.message?.includes("invalid_grant")) {
           console.log("Invalid authorization code detected");
-          redirect("/signin?error=OAuth authentication failed: Invalid authorization code. Please try signing in again.");
+          return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent("OAuth authentication failed: Invalid authorization code. Please try signing in again.")}`);
         } else if (error?.message?.includes("expired")) {
           console.log("Expired code detected");
-          redirect("/signin?error=OAuth authentication failed: Authorization code expired. Please try signing in again.");
+          return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent("OAuth authentication failed: Authorization code expired. Please try signing in again.")}`);
         } else {
-          redirect(`/signin?error=OAuth authentication failed: ${errorMsg}. Please try signing in again.`);
+          return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent(`OAuth authentication failed: ${errorMsg}. Please try signing in again.`)}`);
         }
       }
     } catch (err) {
       console.log("=== OAUTH CALLBACK EXCEPTION ===");
       console.log("Exception details:", err);
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      redirect(`/signin?error=Authentication callback failed: ${errorMsg}. Please try signing in again.`);
+      return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent(`Authentication callback failed: ${errorMsg}. Please try signing in again.`)}`);
     }
   }
 
@@ -134,15 +134,15 @@ export async function GET(request: NextRequest) {
       } else {
         const errorMsg = error?.message || "No session returned";
         console.log("Magic link authentication failed:", errorMsg);
-        redirect(`/signin?error=Magic link authentication failed: ${errorMsg}`);
+        return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent(`Magic link authentication failed: ${errorMsg}`)}`);
       }
     } catch (err) {
       console.log("Magic link callback error:", err);
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      redirect(`/signin?error=Magic link verification failed: ${errorMsg}`);
+      return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent(`Magic link verification failed: ${errorMsg}`)}`);
     }
   }
 
   console.log("No valid authentication parameters found, redirecting to signin");
-  redirect("/signin?error=Invalid authentication callback - no code or token_hash provided");
+  return Response.redirect(`${new URL(request.url).origin}/signin?error=${encodeURIComponent("Invalid authentication callback - no code or token_hash provided")}`);
 }
