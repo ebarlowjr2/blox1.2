@@ -7,7 +7,7 @@ function SignInForm() {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const params = useSearchParams();
-  const redirect = params.get("redirect") || "/app";
+  const redirect = params.get("redirect") || "/dashboard";
   const error = params.get("error");
 
   useEffect(() => {
