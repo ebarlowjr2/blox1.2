@@ -148,7 +148,7 @@ export default function HomePage() {
 
             <div className="flex items-center gap-3">
               <a href="#demo" className="hidden rounded-lg border border-white/15 px-3 py-2 text-sm text-white/80 hover:bg-white/5 md:inline-block">Live demo</a>
-              <Link href="/signin" className="rounded-lg bg-gradient-to-r from-cyan-600 to-emerald-600 px-3.5 py-2.5 text-sm font-semibold shadow-lg shadow-cyan-600/25 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
+              <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-lg bg-gradient-to-r from-cyan-600 to-emerald-600 px-3.5 py-2.5 text-sm font-semibold shadow-lg shadow-cyan-600/25 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function HomePage() {
                 BLOX gives you senior‑level outcomes without hiring a full team. Spin up plug‑and‑play agents for marketing, ops, finance, security—and build your own. No AI degree required.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Link href="/signin" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
+                <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
                 <a href="#how" className="rounded-xl border border-white/15 px-5 py-3 text-sm text-white/90 hover:bg-white/5">See how it works</a>
               </div>
               <div className="mt-6 flex items-center gap-4 text-xs text-white/60">
@@ -231,7 +231,7 @@ export default function HomePage() {
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Agents that ship work</h2>
               <p className="mt-2 max-w-[60ch] text-sm text-white/70">Pick from ready‑made specialists or compose your own from tools, data sources, and policies. BLOX routes tasks to the right agent automatically.</p>
             </div>
-            <Link href="/signin" className="hidden rounded-lg border border-white/15 px-3 py-2 text-sm text-white/90 hover:bg-white/5 md:inline-block">Login</Link>
+            <Link href="/api/auth/login?returnTo=%2Fdashboard" className="hidden rounded-lg border border-white/15 px-3 py-2 text-sm text-white/90 hover:bg-white/5 md:inline-block">Login</Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -296,7 +296,7 @@ export default function HomePage() {
                 <li className="flex items-start gap-2"><span className="mt-1 h-1.5 w-1.5 rounded-full bg-cyan-400"/>SSO and audit trails for teams.</li>
               </ul>
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <Link href="/signin" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Connect my tools</Link>
+                <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Connect my tools</Link>
                 <a href="#" className="rounded-xl border border-white/15 px-5 py-3 text-sm text-white/90 hover:bg-white/5">Security overview</a>
               </div>
             </div>
@@ -315,7 +315,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Put BLOX to work this week</h2>
             <p className="mt-2 text-sm text-white/70">Skip the hiring backlog. Start with a ready‑made agent and grow into a custom AI org chart—on your terms.</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/signin" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
+              <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
               <a href="#demo" className="rounded-xl border border-white/15 px-5 py-3 text-sm text-white/90 hover:bg-white/10">Book a walkthrough</a>
             </div>
           </div>
