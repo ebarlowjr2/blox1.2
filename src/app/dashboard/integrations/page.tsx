@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from "react";
-import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -217,8 +216,7 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
         <header className="sticky top-0 z-10 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
@@ -329,6 +327,5 @@ export default function IntegrationsPage() {
           </div>
         </footer>
       </div>
-    </Layout>
   );
 }
