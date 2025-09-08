@@ -9,7 +9,7 @@ export default function TenantsPage() {
 
   useEffect(() => {
     listTenants()
-      .then((d) => setItems(d.items || []))
+      .then((d) => setItems(d.items))
       .catch((e) => setErr(e.message));
   }, []);
 
