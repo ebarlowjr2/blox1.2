@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const { tenantId, email, token } = await request.json();
+    const { tenantId, email } = await request.json();
     
     if (!tenantId || !email) {
       return NextResponse.json({ error: 'missing fields' }, { status: 400 });
