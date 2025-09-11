@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
+import { createTenant } from '@/lib/blox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,11 +75,13 @@ export default function BillingPage() {
     
     try {
       if (plan.id === 'community') {
+        const tenant = await createTenant(user.name || user.email || 'Community User', 'community');
+        
         const response = await fetch('/api/billing/community', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            tenantId: user.sub,
+            tenantId: tenant.id,
             email: user.email
           })
         });
