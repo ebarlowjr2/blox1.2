@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 
-export default function BillingSuccessPage() {
+function BillingSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [loading, setLoading] = useState(true);
@@ -73,5 +73,20 @@ export default function BillingSuccessPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function BillingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <BillingSuccessContent />
+    </Suspense>
   );
 }
