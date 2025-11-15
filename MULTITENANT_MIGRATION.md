@@ -53,7 +53,37 @@ New tables added:
 
 ### 1. Database Migration
 
-Run the migration SQL file in your Supabase project:
+**IMPORTANT**: If you have existing `agents` or `tasks` tables, you must run the pre-patch migration first.
+
+#### Step 1a: Check for Existing Tables (Optional)
+
+Run this diagnostic query in Supabase SQL Editor to check if you have existing tables:
+
+```sql
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema='public' 
+AND table_name IN ('agents', 'tasks', 'messages');
+```
+
+#### Step 1b: Run Pre-Patch Migration (If You Have Existing Tables)
+
+If the query above returns any tables, run the pre-patch migration first:
+
+```bash
+# In Supabase SQL Editor, run:
+supabase/migrations/000_pre_patch.sql
+```
+
+This pre-patch will:
+- Add `tenant_id` column to existing tables
+- Add other missing columns like `status` and `updated_at`
+- Enable the pgcrypto extension for UUID generation
+
+**This is safe to run multiple times (idempotent).**
+
+#### Step 1c: Run Main Migration
+
+Now run the main migration SQL file in your Supabase project:
 
 ```bash
 # In Supabase SQL Editor, run:
