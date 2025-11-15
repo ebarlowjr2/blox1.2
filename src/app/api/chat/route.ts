@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withTenant, ApiRequest, logActivity } from '@/lib/api-middleware';
+import { createSupabaseServer } from '@/lib/supabase-server';
 
 const BLOX_CEO_PROMPT = `You are B.L.O.X (Barlow Logic Operations Xecutive), the AI CEO of a technology company. Your role is to:
 
@@ -11,7 +13,7 @@ const BLOX_CEO_PROMPT = `You are B.L.O.X (Barlow Logic Operations Xecutive), the
 
 You have the authority to direct other AI agents (similar to D.A.S.H) and should provide clear, actionable guidance for business operations and system management.`;
 
-export async function POST(req: NextRequest) {
+export const POST = withTenant(async (req: ApiRequest) => {
   const body = await req.json();
   const message = body?.message;
 
@@ -20,8 +22,26 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const { tenantId, userId } = req.ctx!;
+    const supabase = await createSupabaseServer();
 
-    // Call OpenAI API
+    const { data: ceoAgent } = await supabase
+      .from("agents")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("kind", "CEO")
+      .single();
+
+    await supabase.from("messages").insert({
+      tenant_id: tenantId,
+      agent_id: ceoAgent?.id || null,
+      channel: "chat",
+      direction: "inbound",
+      from_address: userId,
+      to_address: "blox-ceo",
+      content: message,
+    });
+
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,6 +66,23 @@ export async function POST(req: NextRequest) {
     const openaiData = await openaiResponse.json();
     const reply = openaiData.choices[0]?.message?.content || 'I apologize, but I encountered an issue processing your request.';
 
+    await supabase.from("messages").insert({
+      tenant_id: tenantId,
+      agent_id: ceoAgent?.id || null,
+      channel: "chat",
+      direction: "outbound",
+      from_address: "blox-ceo",
+      to_address: userId,
+      content: reply,
+    });
+
+    await logActivity(tenantId, "message_sent", {
+      agentId: ceoAgent?.id,
+      userId,
+      entityType: "message",
+      metadata: { channel: "chat" },
+    });
+
     return NextResponse.json({ reply });
 
   } catch (error) {
@@ -54,14 +91,24 @@ export async function POST(req: NextRequest) {
       error: 'I apologize, but I encountered connectivity issues. Please try again.' 
     }, { status: 500 });
   }
-}
+});
 
-export async function GET(req: NextRequest) {
+export const GET = withTenant(async (req: ApiRequest) => {
   try {
-    // Return empty messages since database storage is removed
-    return NextResponse.json({ messages: [] });
+    const { tenantId } = req.ctx!;
+    const supabase = await createSupabaseServer();
+
+    const { data: messages } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("channel", "chat")
+      .order("created_at", { ascending: true })
+      .limit(50);
+
+    return NextResponse.json({ messages: messages || [] });
   } catch (error) {
     console.error('Error fetching chat history:', error);
     return NextResponse.json({ messages: [] });
   }
-}
+});
