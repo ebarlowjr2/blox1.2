@@ -148,7 +148,7 @@ export default function HomePage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <a href="#demo" className="hidden rounded-lg border border-white/15 px-3 py-2 text-sm text-white/80 hover:bg-white/5 md:inline-block">Live demo</a>
+              <Link href="/dashboard" className="hidden rounded-lg border border-white/15 px-3 py-2 text-sm text-white/80 hover:bg-white/5 md:inline-block">Live demo</Link>
               <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-lg bg-gradient-to-r from-cyan-600 to-emerald-600 px-3.5 py-2.5 text-sm font-semibold shadow-lg shadow-cyan-600/25 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
             </div>
           </div>
@@ -317,7 +317,7 @@ export default function HomePage() {
             <p className="mt-2 text-sm text-white/70">Skip the hiring backlog. Start with a ready‑made agent and grow into a custom AI org chart—on your terms.</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link href="/api/auth/login?returnTo=%2Fdashboard" className="rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 px-5 py-3 text-sm font-semibold shadow-lg shadow-cyan-600/30 ring-1 ring-white/10 hover:from-cyan-500 hover:to-emerald-500">Login</Link>
-              <a href="#demo" className="rounded-xl border border-white/15 px-5 py-3 text-sm text-white/90 hover:bg-white/10">Book a walkthrough</a>
+              <Link href="/dashboard" className="rounded-xl border border-white/15 px-5 py-3 text-sm text-white/90 hover:bg-white/10">Book a walkthrough</Link>
             </div>
           </div>
         </div>
