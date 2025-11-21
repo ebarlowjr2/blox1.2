@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseServer } from "@/lib/supabase-server";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+
+export const runtime = "nodejs";
 
 const sesClient = new SESClient({
   region: process.env.AWS_REGION || "us-east-1",
