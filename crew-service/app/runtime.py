@@ -41,12 +41,6 @@ def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> di
     tony = make_tony()
     sage = make_sage()
 
-    crew = Crew(
-        agents=[blox, mark, cory, hali, alex, fint, cyra, tony, sage],
-        process="sequential",
-        verbose=True,
-    )
-
     planning_task = Task(
         description=f"""
         You are BLOX, the AI CEO. A user has requested via {channel}:
@@ -67,8 +61,15 @@ def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> di
         agent=blox,
     )
 
+    crew = Crew(
+        agents=[blox, mark, cory, hali, alex, fint, cyra, tony, sage],
+        tasks=[planning_task],
+        process="sequential",
+        verbose=True,
+    )
+
     try:
-        result = crew.kickoff(tasks=[planning_task])
+        result = crew.kickoff()
         
         return {
             "result": str(result),
