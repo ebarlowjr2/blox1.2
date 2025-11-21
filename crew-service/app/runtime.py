@@ -43,44 +43,40 @@ def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> di
 
     crew = Crew(
         agents=[blox, mark, cory, hali, alex, fint, cyra, tony, sage],
-        manager_agent=blox,
-        process="hierarchical",  # BLOX will act as the CEO/manager
+        process="sequential",
         verbose=True,
     )
 
-    task_description = f"""
-    You are BLOX, the AI CEO. A user has requested via {channel}:
+    planning_task = Task(
+        description=f"""
+        You are BLOX, the AI CEO. A user has requested via {channel}:
 
-    \"\"\"{user_message}\"\"\"
+        \"\"\"{user_message}\"\"\"
 
-    Work with your team (M.A.R.K, C.O.R.Y, H.A.L.I, A.L.E.X, F.I.N.T, C.Y.R.A, T.O.N.Y, S.A.G.E)
-    to produce the best possible answer.
+        As the CEO, analyze this request and provide a comprehensive response.
+        You can coordinate with your specialist team (M.A.R.K for Marketing, C.O.R.Y for Creative,
+        H.A.L.I for Human Assistance, A.L.E.X for Admin, F.I.N.T for Finance, C.Y.R.A for Cybersecurity,
+        T.O.N.Y for Technical, S.A.G.E for Social) when their expertise would add value.
 
-    Guidelines:
-    - Delegate subtasks to the appropriate specialist agents when helpful
-    - Use each agent only where they add value
-    - Coordinate their work and synthesize their inputs
-    - Return one clear, comprehensive final response for the user
-    - Be concise but thorough
+        Provide a clear, comprehensive response to the user's request.
+        Be concise but thorough.
 
-    Tenant ID: {tenant_id}
-    """
-
-    task = Task(
-        description=task_description,
+        Tenant ID: {tenant_id}
+        """,
         expected_output="A clear, comprehensive response to the user's request",
         agent=blox,
     )
 
     try:
-        result = crew.kickoff(tasks=[task])
+        result = crew.kickoff(tasks=[planning_task])
         
         return {
             "result": str(result),
             "trace": {
                 "tenant_id": tenant_id,
                 "channel": channel,
-                "agents_used": [
+                "process": "sequential",
+                "agents_available": [
                     "BLOX", "M.A.R.K", "C.O.R.Y", "H.A.L.I", 
                     "A.L.E.X", "F.I.N.T", "C.Y.R.A", "T.O.N.Y", "S.A.G.E"
                 ],
