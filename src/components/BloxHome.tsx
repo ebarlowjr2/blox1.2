@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useRealTimeData } from "@/hooks/useRealTimeData";
+import CrewTestPanel from "@/components/CrewTestPanel";
 
 // ------------------------------------------------------------
 // BLOX – AI CEO Home Page
@@ -321,6 +322,9 @@ export default function BloxHome() {
               </div>
             </CardContent>
           </Card>
+
+          {/* CrewAI Test Panel */}
+          <CrewTestPanel />
 
           {/* Activity */}
           <Card className="rounded-2xl">
