@@ -17,6 +17,7 @@ from .agents import (
     make_tony,
     make_sage,
 )
+from .tools.email import create_email_tool
 
 
 def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> dict:
@@ -31,8 +32,10 @@ def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> di
     Returns:
         dict: Contains 'result' (the agent response) and optional 'trace' data
     """
-    blox = make_blox()
-    mark = make_mark()
+    email_tool = create_email_tool(tenant_id)
+    
+    blox = make_blox(tools=[email_tool])
+    mark = make_mark(tools=[email_tool])
     cory = make_cory()
     hali = make_hali()
     alex = make_alex()

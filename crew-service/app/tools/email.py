@@ -1,0 +1,114 @@
+"""
+Email Tool for CrewAI Agents
+
+This tool allows agents to send emails via the Next.js Tool Gateway.
+The gateway handles tenant credentials, AWS SES integration, and audit logging.
+"""
+
+import os
+import requests
+from typing import Optional
+
+
+class EmailTool:
+    """
+    Tool for sending emails via the Next.js Tool Gateway.
+    
+    This is a thin wrapper that calls the gateway endpoint with tenant context.
+    The gateway handles:
+    - Tenant credential retrieval from AWS Secrets Manager
+    - AWS SES email sending
+    - Audit logging in Supabase
+    - Rate limiting per tenant
+    """
+    
+    def __init__(self, tenant_id: str, gateway_url: Optional[str] = None):
+        """
+        Initialize the email tool.
+        
+        Args:
+            tenant_id: The tenant ID for multi-tenant isolation
+            gateway_url: Optional override for the gateway URL (defaults to env var)
+        """
+        self.tenant_id = tenant_id
+        self.gateway_url = gateway_url or os.getenv("GATEWAY_URL", "http://localhost:3000")
+    
+    def send_email(self, to: str, subject: str, body: str, from_email: Optional[str] = None) -> dict:
+        """
+        Send an email via the Tool Gateway.
+        
+        Args:
+            to: Recipient email address
+            subject: Email subject line
+            body: Email body text
+            from_email: Optional sender email (defaults to tenant's configured email)
+        
+        Returns:
+            dict: Response from the gateway with success status and message ID
+        
+        Raises:
+            Exception: If the email fails to send
+        """
+        endpoint = f"{self.gateway_url}/api/tools/email/send"
+        
+        payload = {
+            "tenantId": self.tenant_id,
+            "to": to,
+            "subject": subject,
+            "body": body,
+        }
+        
+        if from_email:
+            payload["from"] = from_email
+        
+        try:
+            response = requests.post(
+                endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=30,
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                error_data = response.json()
+                raise Exception(f"Failed to send email: {error_data.get('error', 'Unknown error')}")
+        
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Error calling email gateway: {str(e)}")
+    
+    def __call__(self, to: str, subject: str, body: str, from_email: Optional[str] = None) -> str:
+        """
+        Make the tool callable directly by CrewAI agents.
+        
+        This method allows agents to use the tool like:
+        email_tool(to="user@example.com", subject="Hello", body="Message")
+        
+        Args:
+            to: Recipient email address
+            subject: Email subject line
+            body: Email body text
+            from_email: Optional sender email
+        
+        Returns:
+            str: Success message with details
+        """
+        try:
+            result = self.send_email(to, subject, body, from_email)
+            return f"Email sent successfully to {to}. Message ID: {result.get('messageId', 'N/A')}"
+        except Exception as e:
+            return f"Failed to send email: {str(e)}"
+
+
+def create_email_tool(tenant_id: str) -> EmailTool:
+    """
+    Factory function to create an email tool for a specific tenant.
+    
+    Args:
+        tenant_id: The tenant ID for multi-tenant isolation
+    
+    Returns:
+        EmailTool: Configured email tool instance
+    """
+    return EmailTool(tenant_id)

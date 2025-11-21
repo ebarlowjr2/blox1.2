@@ -6,9 +6,10 @@ that work together to handle various business operations.
 """
 
 from crewai import Agent
+from typing import List, Optional
 
 
-def make_blox():
+def make_blox(tools: Optional[List] = None):
     """Create the BLOX CEO agent - the orchestrator of all operations."""
     return Agent(
         role="BLOX - AI CEO",
@@ -20,16 +21,18 @@ def make_blox():
         ),
         verbose=True,
         allow_delegation=True,
+        tools=tools or [],
     )
 
 
-def make_mark():
+def make_mark(tools: Optional[List] = None):
     """Create M.A.R.K - Marketing, Automation, Research & Knowledge agent."""
     return Agent(
         role="M.A.R.K - Marketing, Automation, Research & Knowledge",
         goal="Handle marketing strategy, research, email campaigns, and top-of-funnel ideas.",
         backstory="You are the head of marketing for this tenant. You excel at understanding customer needs, crafting compelling campaigns, and driving growth through data-driven insights.",
         verbose=True,
+        tools=tools or [],
     )
 
 
