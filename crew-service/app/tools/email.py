@@ -8,8 +8,8 @@ The gateway handles tenant credentials, AWS SES integration, and audit logging.
 import os
 import requests
 from typing import Optional
-from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.tools import StructuredTool
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain.tools import StructuredTool
 
 
 class EmailTool:
