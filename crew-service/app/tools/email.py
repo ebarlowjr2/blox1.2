@@ -149,6 +149,11 @@ def create_email_tool(tenant_id: str, actor_user_id: str):
         
         Parse the instruction to extract to, subject, and body fields.
         """
+        print(f"=" * 80, flush=True)
+        print(f"EMAIL TOOL CALLED WITH INSTRUCTION:", flush=True)
+        print(f"{instruction}", flush=True)
+        print(f"=" * 80, flush=True)
+        
         try:
             to_match = re.search(r'to:\s*([^\s;]+(?:@[^\s;]+)?)', instruction, re.IGNORECASE)
             subject_match = re.search(r'subject:\s*["\']?([^;"\']+)["\']?', instruction, re.IGNORECASE)
@@ -165,13 +170,22 @@ def create_email_tool(tenant_id: str, actor_user_id: str):
             subject = subject_match.group(1).strip() if subject_match else None
             body = body_match.group(1).strip() if body_match else None
             
-            if not to or not subject or not body:
-                return f"Error: Could not parse email details. Please provide in format: 'to: email@example.com; subject: Your Subject; body: Your message here'. Got: {instruction}"
+            print(f"PARSED: to={to}, subject={subject}, body={body}", flush=True)
             
+            if not to or not subject or not body:
+                error_msg = f"Error: Could not parse email details. Please provide in format: 'to: email@example.com; subject: Your Subject; body: Your message here'. Got: {instruction}"
+                print(f"PARSE ERROR: {error_msg}", flush=True)
+                return error_msg
+            
+            print(f"Calling gateway at {email_client.gateway_url}/api/tools/email/send", flush=True)
             result = email_client.send_email(to=to, subject=subject, body=body)
-            return f"Email sent successfully to {to}. Message ID: {result.get('messageId', 'N/A')}"
+            success_msg = f"Email sent successfully to {to}. Message ID: {result.get('messageId', 'N/A')}"
+            print(f"SUCCESS: {success_msg}", flush=True)
+            return success_msg
         except Exception as e:
-            return f"Failed to send email: {str(e)}"
+            error_msg = f"Failed to send email: {str(e)}"
+            print(f"EXCEPTION: {error_msg}", flush=True)
+            return error_msg
     
     return Tool.from_function(
         func=_send_email,
