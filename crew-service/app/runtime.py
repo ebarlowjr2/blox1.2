@@ -20,19 +20,20 @@ from .agents import (
 from .tools.email import create_email_tool
 
 
-def run_blox_crew(tenant_id: str, user_message: str, channel: str = "web") -> dict:
+def run_blox_crew(tenant_id: str, actor_user_id: str, user_message: str, channel: str = "web") -> dict:
     """
     Execute a CrewAI task with BLOX and the 8 specialist agents.
     
     Args:
         tenant_id: The tenant ID for multi-tenant isolation
+        actor_user_id: The user ID making the request (for audit logging)
         user_message: The user's request/message
         channel: The communication channel (web, email, sms)
     
     Returns:
         dict: Contains 'result' (the agent response) and optional 'trace' data
     """
-    email_tool = create_email_tool(tenant_id)
+    email_tool = create_email_tool(tenant_id, actor_user_id)
     
     blox = make_blox(tools=[email_tool])
     mark = make_mark(tools=[email_tool])

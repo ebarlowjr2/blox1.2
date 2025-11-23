@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
 export const runtime = "nodejs";
@@ -18,23 +19,13 @@ interface EmailRequest {
   subject: string;
   body: string;
   from?: string;
+  actorUserId?: string;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createSupabaseServer();
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized - No user session" },
-        { status: 401 }
-      );
-    }
-
     const body: EmailRequest = await req.json();
-    const { tenantId, to, subject, body: emailBody, from } = body;
+    const { tenantId, to, subject, body: emailBody, from, actorUserId } = body;
 
     if (!tenantId || !to || !subject || !emailBody) {
       return NextResponse.json(
@@ -43,31 +34,72 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data: membership } = await supabase
-      .from("tenant_members")
-      .select("tenant_id, role")
-      .eq("user_id", user.id)
-      .eq("tenant_id", tenantId)
-      .single();
+    const gatewaySecret = req.headers.get("x-gateway-secret");
+    const isServerToServer = gatewaySecret === process.env.TOOL_GATEWAY_SECRET && gatewaySecret;
 
-    if (!membership) {
-      return NextResponse.json(
-        { error: "Forbidden - User not member of this tenant" },
-        { status: 403 }
+    let userId: string;
+    let supabase;
+
+    if (isServerToServer) {
+      if (!actorUserId) {
+        return NextResponse.json(
+          { error: "actorUserId required for server-to-server calls" },
+          { status: 400 }
+        );
+      }
+
+      supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
       );
-    }
 
-    const { data: tenant } = await supabase
-      .from("tenants")
-      .select("name, owner_id")
-      .eq("id", tenantId)
-      .single();
+      userId = actorUserId;
 
-    if (!tenant) {
-      return NextResponse.json(
-        { error: "Tenant not found" },
-        { status: 404 }
-      );
+      const { data: membership } = await supabase
+        .from("tenant_members")
+        .select("tenant_id")
+        .eq("user_id", actorUserId)
+        .eq("tenant_id", tenantId)
+        .single();
+
+      if (!membership) {
+        return NextResponse.json(
+          { error: "Forbidden - Actor user not member of this tenant" },
+          { status: 403 }
+        );
+      }
+    } else {
+      supabase = await createSupabaseServer();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user?.id) {
+        return NextResponse.json(
+          { error: "Unauthorized - No user session" },
+          { status: 401 }
+        );
+      }
+
+      userId = user.id;
+
+      const { data: membership } = await supabase
+        .from("tenant_members")
+        .select("tenant_id, role")
+        .eq("user_id", user.id)
+        .eq("tenant_id", tenantId)
+        .single();
+
+      if (!membership) {
+        return NextResponse.json(
+          { error: "Forbidden - User not member of this tenant" },
+          { status: 403 }
+        );
+      }
     }
 
     const fromEmail = from || process.env.SES_FROM_EMAIL || "noreply@blox.onecs.net";
@@ -95,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("tool_usage_logs").insert({
       tenant_id: tenantId,
-      user_id: user.id,
+      user_id: userId,
       tool_name: "email_send",
       tool_provider: "aws_ses",
       input_data: {
@@ -117,28 +149,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error sending email:", error);
-
-    try {
-      const supabase = await createSupabaseServer();
-      const { data: { user } } = await supabase.auth.getUser();
-      const body = await req.json().catch(() => ({}));
-
-      if (user?.id && body.tenantId) {
-        await supabase.from("tool_usage_logs").insert({
-          tenant_id: body.tenantId,
-          user_id: user.id,
-          tool_name: "email_send",
-          tool_provider: "aws_ses",
-          input_data: body,
-          output_data: {
-            error: error.message,
-          },
-          status: "error",
-        });
-      }
-    } catch (logError) {
-      console.error("Error logging tool usage:", logError);
-    }
 
     return NextResponse.json(
       {

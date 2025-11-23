@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         tenantId: membership.tenant_id,
+        actorUserId: user.id,
         message,
         channel: "web",
       }),

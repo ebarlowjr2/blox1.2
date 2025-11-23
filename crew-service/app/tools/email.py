@@ -22,16 +22,19 @@ class EmailTool:
     - Rate limiting per tenant
     """
     
-    def __init__(self, tenant_id: str, gateway_url: Optional[str] = None):
+    def __init__(self, tenant_id: str, actor_user_id: str, gateway_url: Optional[str] = None):
         """
         Initialize the email tool.
         
         Args:
             tenant_id: The tenant ID for multi-tenant isolation
+            actor_user_id: The user ID making the request (for audit logging)
             gateway_url: Optional override for the gateway URL (defaults to env var)
         """
         self.tenant_id = tenant_id
+        self.actor_user_id = actor_user_id
         self.gateway_url = gateway_url or os.getenv("GATEWAY_URL", "http://localhost:3000")
+        self.gateway_secret = os.getenv("TOOL_GATEWAY_SECRET", "")
     
     def send_email(self, to: str, subject: str, body: str, from_email: Optional[str] = None) -> dict:
         """
@@ -53,6 +56,7 @@ class EmailTool:
         
         payload = {
             "tenantId": self.tenant_id,
+            "actorUserId": self.actor_user_id,
             "to": to,
             "subject": subject,
             "body": body,
@@ -61,11 +65,16 @@ class EmailTool:
         if from_email:
             payload["from"] = from_email
         
+        headers = {
+            "Content-Type": "application/json",
+            "X-Gateway-Secret": self.gateway_secret,
+        }
+        
         try:
             response = requests.post(
                 endpoint,
                 json=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 timeout=30,
             )
             
@@ -101,14 +110,15 @@ class EmailTool:
             return f"Failed to send email: {str(e)}"
 
 
-def create_email_tool(tenant_id: str) -> EmailTool:
+def create_email_tool(tenant_id: str, actor_user_id: str) -> EmailTool:
     """
     Factory function to create an email tool for a specific tenant.
     
     Args:
         tenant_id: The tenant ID for multi-tenant isolation
+        actor_user_id: The user ID making the request (for audit logging)
     
     Returns:
         EmailTool: Configured email tool instance
     """
-    return EmailTool(tenant_id)
+    return EmailTool(tenant_id, actor_user_id)

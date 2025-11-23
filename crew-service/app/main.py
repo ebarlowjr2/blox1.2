@@ -36,6 +36,7 @@ app.add_middleware(
 class CrewRequest(BaseModel):
     """Request model for crew execution"""
     tenantId: str
+    actorUserId: str
     message: str
     channel: str = "web"
 
@@ -85,6 +86,7 @@ async def run_crew(request: CrewRequest):
     try:
         result = run_blox_crew(
             tenant_id=request.tenantId,
+            actor_user_id=request.actorUserId,
             user_message=request.message,
             channel=request.channel,
         )
