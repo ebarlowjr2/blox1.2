@@ -37,6 +37,13 @@ export async function POST(req: NextRequest) {
     const gatewaySecret = req.headers.get("x-gateway-secret");
     const isServerToServer = gatewaySecret === process.env.TOOL_GATEWAY_SECRET && gatewaySecret;
 
+    console.log("[EMAIL GATEWAY DEBUG]", {
+      hasGatewaySecret: !!gatewaySecret,
+      hasEnvSecret: !!process.env.TOOL_GATEWAY_SECRET,
+      isServerToServer,
+      secretsMatch: gatewaySecret === process.env.TOOL_GATEWAY_SECRET,
+    });
+
     let userId: string;
     let supabase;
 
