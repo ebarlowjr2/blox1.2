@@ -8,6 +8,8 @@ The gateway handles tenant credentials, AWS SES integration, and audit logging.
 import os
 import requests
 from typing import Optional
+from pydantic import BaseModel, Field
+from langchain.tools import StructuredTool
 
 
 class EmailTool:
@@ -110,15 +112,39 @@ class EmailTool:
             return f"Failed to send email: {str(e)}"
 
 
-def create_email_tool(tenant_id: str, actor_user_id: str) -> EmailTool:
+class EmailArgs(BaseModel):
+    """Arguments schema for the email tool."""
+    to: str = Field(..., description="Recipient email address")
+    subject: str = Field(..., description="Email subject line")
+    body: str = Field(..., description="Email body text (plain text)")
+    from_email: Optional[str] = Field(None, description="Optional sender email address (defaults to tenant's configured email)")
+
+
+def create_email_tool(tenant_id: str, actor_user_id: str) -> StructuredTool:
     """
-    Factory function to create an email tool for a specific tenant.
+    Factory function to create a LangChain-compatible email tool for a specific tenant.
     
     Args:
         tenant_id: The tenant ID for multi-tenant isolation
         actor_user_id: The user ID making the request (for audit logging)
     
     Returns:
-        EmailTool: Configured email tool instance
+        StructuredTool: LangChain-compatible email tool instance
     """
-    return EmailTool(tenant_id, actor_user_id)
+    email_client = EmailTool(tenant_id, actor_user_id)
+    
+    def _send_email(to: str, subject: str, body: str, from_email: Optional[str] = None) -> str:
+        """Send an email via the tenant's AWS SES configuration."""
+        try:
+            result = email_client.send_email(to=to, subject=subject, body=body, from_email=from_email)
+            return f"Email sent successfully to {to}. Message ID: {result.get('messageId', 'N/A')}"
+        except Exception as e:
+            return f"Failed to send email: {str(e)}"
+    
+    return StructuredTool.from_function(
+        func=_send_email,
+        name="send_email",
+        description="Send an email via AWS SES. Use this tool when asked to send an email, notify someone via email, or communicate through email.",
+        args_schema=EmailArgs,
+        return_direct=False,
+    )
