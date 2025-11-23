@@ -128,7 +128,7 @@ class EmailArgs(BaseModel):
     from_email: Optional[str] = Field(None, description="Optional sender email address (defaults to tenant's configured email)")
 
 
-def create_email_tool(tenant_id: str, actor_user_id: str) -> StructuredTool:
+def create_email_tool(tenant_id: str, actor_user_id: str):
     """
     Factory function to create a LangChain-compatible email tool for a specific tenant.
     
@@ -137,36 +137,52 @@ def create_email_tool(tenant_id: str, actor_user_id: str) -> StructuredTool:
         actor_user_id: The user ID making the request (for audit logging)
     
     Returns:
-        StructuredTool: LangChain-compatible email tool instance
+        Tool: LangChain-compatible email tool instance
     """
+    import re
+    from langchain.tools import Tool
+    
     email_client = EmailTool(tenant_id, actor_user_id)
     
-    def _send_email(to: str, subject: str, body: str, from_email: Optional[str] = None) -> str:
-        """Send an email via the tenant's AWS SES configuration."""
+    def _send_email(instruction: str) -> str:
+        """Send an email via the tenant's AWS SES configuration.
+        
+        Parse the instruction to extract to, subject, and body fields.
+        """
         try:
-            result = email_client.send_email(to=to, subject=subject, body=body, from_email=from_email)
+            to_match = re.search(r'to:\s*([^\s;]+(?:@[^\s;]+)?)', instruction, re.IGNORECASE)
+            subject_match = re.search(r'subject:\s*["\']?([^;"\']+)["\']?', instruction, re.IGNORECASE)
+            body_match = re.search(r'body:\s*["\']?(.+?)["\']?(?:\s*$|;)', instruction, re.IGNORECASE | re.DOTALL)
+            
+            if not to_match:
+                to_match = re.search(r'(?:email|send to|recipient)\s+(?:is\s+)?([^\s]+@[^\s,;]+)', instruction, re.IGNORECASE)
+            if not subject_match:
+                subject_match = re.search(r'(?:subject|title)\s+(?:is\s+)?["\']([^"\']+)["\']', instruction, re.IGNORECASE)
+            if not body_match:
+                body_match = re.search(r'(?:body|message|content)\s+(?:is\s+)?["\'](.+?)["\']', instruction, re.IGNORECASE | re.DOTALL)
+            
+            to = to_match.group(1).strip() if to_match else None
+            subject = subject_match.group(1).strip() if subject_match else None
+            body = body_match.group(1).strip() if body_match else None
+            
+            if not to or not subject or not body:
+                return f"Error: Could not parse email details. Please provide in format: 'to: email@example.com; subject: Your Subject; body: Your message here'. Got: {instruction}"
+            
+            result = email_client.send_email(to=to, subject=subject, body=body)
             return f"Email sent successfully to {to}. Message ID: {result.get('messageId', 'N/A')}"
         except Exception as e:
             return f"Failed to send email: {str(e)}"
     
-    return StructuredTool.from_function(
+    return Tool.from_function(
         func=_send_email,
         name="send_email",
         description="""Send an email via AWS SES. Use this tool when asked to send an email, notify someone via email, or communicate through email.
 
-Required arguments (must be provided as JSON):
-- to: recipient email address (string)
-- subject: email subject line (string)  
-- body: email body text in plain text (string)
+Provide the email details in this format:
+to: recipient@example.com; subject: Your Subject Here; body: Your message content here
 
-Example usage:
-{
-    "to": "user@example.com",
-    "subject": "Meeting Reminder", 
-    "body": "This is a reminder about our meeting tomorrow at 2pm."
-}
+Example:
+to: user@example.com; subject: Meeting Reminder; body: This is a reminder about our meeting tomorrow at 2pm.
 
-Always extract the recipient email, subject, and body from the user's request and provide them as structured arguments.""",
-        args_schema=EmailArgs,
-        return_direct=False,
+Always extract the recipient email, subject, and body from the user's request and format them as shown above.""",
     )
