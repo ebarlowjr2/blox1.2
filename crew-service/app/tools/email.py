@@ -113,10 +113,18 @@ class EmailTool:
 
 
 class EmailArgs(BaseModel):
-    """Arguments schema for the email tool."""
-    to: str = Field(..., description="Recipient email address")
-    subject: str = Field(..., description="Email subject line")
-    body: str = Field(..., description="Email body text (plain text)")
+    """Arguments schema for the email tool.
+    
+    Example JSON:
+    {
+        "to": "user@example.com",
+        "subject": "Meeting Reminder",
+        "body": "This is a reminder about our meeting tomorrow at 2pm."
+    }
+    """
+    to: str = Field(..., description="Recipient email address (e.g., 'user@example.com')")
+    subject: str = Field(..., description="Email subject line (e.g., 'Meeting Reminder')")
+    body: str = Field(..., description="Email body text in plain text format (e.g., 'This is a reminder...')")
     from_email: Optional[str] = Field(None, description="Optional sender email address (defaults to tenant's configured email)")
 
 
@@ -144,7 +152,21 @@ def create_email_tool(tenant_id: str, actor_user_id: str) -> StructuredTool:
     return StructuredTool.from_function(
         func=_send_email,
         name="send_email",
-        description="Send an email via AWS SES. Use this tool when asked to send an email, notify someone via email, or communicate through email.",
+        description="""Send an email via AWS SES. Use this tool when asked to send an email, notify someone via email, or communicate through email.
+
+Required arguments (must be provided as JSON):
+- to: recipient email address (string)
+- subject: email subject line (string)  
+- body: email body text in plain text (string)
+
+Example usage:
+{
+    "to": "user@example.com",
+    "subject": "Meeting Reminder", 
+    "body": "This is a reminder about our meeting tomorrow at 2pm."
+}
+
+Always extract the recipient email, subject, and body from the user's request and provide them as structured arguments.""",
         args_schema=EmailArgs,
         return_direct=False,
     )
