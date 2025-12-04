@@ -7,11 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 
+interface ToolUsed {
+  agentName: string;
+  toolKey: string;
+  summary: string;
+}
+
 interface Message {
   id: string;
   content: string;
   sender: 'user' | 'blox';
   timestamp: Date;
+  toolsUsed?: ToolUsed[];
 }
 
 export default function ChatPage() {
@@ -66,28 +73,29 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/crew/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage.content }),
+        body: JSON.stringify({ message: userMessage.content, channel: 'web' }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.reply) {
+      if (response.ok && data.success) {
         const bloxMessage: Message = {
           id: `${Date.now()}-blox`,
-          content: data.reply,
+          content: data.reply || 'I processed your request.',
           sender: 'blox',
-          timestamp: new Date()
+          timestamp: new Date(),
+          toolsUsed: data.toolsUsed,
         };
         setMessages(prev => [...prev, bloxMessage]);
       } else {
         const errorMessage: Message = {
           id: `${Date.now()}-error`,
-          content: data.error || 'Sorry, I encountered an issue processing your request.',
+          content: data.error?.message || 'Sorry, I encountered an issue processing your request.',
           sender: 'blox',
           timestamp: new Date()
         };
@@ -181,6 +189,15 @@ export default function ChatPage() {
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
+                      {message.toolsUsed && message.toolsUsed.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          {message.toolsUsed.map((tool, idx) => (
+                            <p key={idx} className="text-xs text-gray-500 italic">
+                              ({tool.agentName} {tool.summary || `used ${tool.toolKey}`})
+                            </p>
+                          ))}
+                        </div>
+                      )}
                       <p
                         className={`text-xs mt-1 ${
                           message.sender === 'user'
