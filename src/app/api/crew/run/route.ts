@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServer } from '@/lib/supabase-server';
+
+// AUTH DISABLED TEMPORARILY — restore createSupabaseServer import and auth
+// logic below to re-enable Supabase authentication.
 
 const CREW_SERVICE_URL = process.env.CREW_SERVICE_URL || 'https://blox12-production.up.railway.app';
 
@@ -33,24 +35,9 @@ interface CrewRunResponse {
 
 export async function POST(request: NextRequest): Promise<NextResponse<CrewRunResponse>> {
   try {
-    // Authenticate user and get tenant ID
-    const supabase = await createSupabaseServer();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'You must be logged in to use this feature.',
-        },
-      }, { status: 401 });
-    }
-
-    // For now, tenant_id equals user.id (single-user tenants)
-    // This can be updated later for multi-user organizations
-    const tenantId = user.id;
-    const actorUserId = user.id;
+    // AUTH DISABLED TEMPORARILY — using placeholder IDs
+    const tenantId = 'dev-tenant';
+    const actorUserId = 'dev-user';
 
     // Parse request body
     const body: CrewRunRequest = await request.json();
